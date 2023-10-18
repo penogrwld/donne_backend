@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   email: String,
   username: String,
   password: String,
-  canDelete: Boolean,
+  //canDelete: Boolean,
 });
 
 const User = mongoose.model('users', userSchema);

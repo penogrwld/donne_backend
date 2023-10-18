@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 
 // Route pour l'inscription
 router.post('/signup', (req, res) => {
-  if (!checkBody(req.body, ['firstname', 'lastname','username', 'password', 'email'])) {
+  if (!checkBody(req.body, ['firstname', 'lastname', 'username', 'password', 'email'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
