@@ -3,6 +3,7 @@ var router = express.Router();
 
 require('../models/connection');
 const User = require('../models/users');
+const Object = require('../models/objects');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
@@ -54,6 +55,53 @@ router.post('/signin', (req, res) => {
     }
   });
 });
+
+
+// Farid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ // Route côté chineur/dénicheur
+ router.get('/:token', (req, res) => {
+  User.findOne({ token: req.params.token }).then(user => {
+    
+    if (!user) {
+      res.json({ result: false, error: 'User not found' });
+      return;
+    } else {
+// Le populate permet d'aller récupérer le contenu de likedObjects dans la collection Users.
+// Le contenu de likedObjects étant une clé étrangère contenant le schéma objects.
+// Le 2ème populate permet d'aller récupérer le contenu du user dans le likedObjects de la collection Users. 
+      user.populate({path : 'likedObjects', populate : {path: 'user'}} )
+      .then(finalObj =>  {console.log(finalObj)
+          res.json({ result: true, finalObj });
+      
+      });
+    }
+  });
+})
+
 
 
   module.exports = router;
