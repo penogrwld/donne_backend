@@ -3,6 +3,7 @@ var router = express.Router();
 
 require('../models/connection');
 const User = require('../models/users');
+const Object = require('../models/objects')
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
@@ -55,5 +56,113 @@ router.post('/signin', (req, res) => {
   });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Ajouter un like
+router.put('/like/:token', (req, res) => {
+  User.findOne({ token: req.params.token }).then(user => {
+    if (!user) {
+      console.log("Utilisateur non trouvé");
+      res.json({ result: false, error: 'Utilisateur non trouvé' });
+      return;
+    }
+
+    if (!user.likedObj) {
+      user.likedObj = [];
+    }
+
+    if (user.likedObj.length >= 5) {
+      res.json({ result: false, error: 'Vous avez utilisé tous vos likes' });
+      return;
+    }
+
+    Object.findOne({ _id: req.body.object }).then(object => {
+      if (!object) {
+        res.json({ result: false, error: 'Objet non trouvé' });
+        return;
+      }
+
+      if (!object.likedBy) {
+        object.likedBy = [];
+      }
+
+      if (object.likedBy.length >= 5) {
+        res.json({ result: false, error: 'Cet objet a déjà eu le nombre maximum de likes' });
+        return;
+      }
+
+      object.likedBy.push(user._id);
+
+      object.save().then(savedObject => {
+        user.likedObj.push(savedObject._id);
+        user.save().then(savedUser => {
+          res.json({ result: true, likedBy: savedObject.likedBy });
+        }).catch(err => {
+          console.log("Erreur lors de l'enregistrement de l'utilisateur:", err);
+          res.status(500).json({ result: false, error: 'Erreur lors de l\'enregistrement de l\'utilisateur' });
+        });
+      }).catch(err => {
+        console.log("Erreur lors de l'enregistrement de l'objet:", err);
+        res.status(500).json({ result: false, error: 'Erreur lors de l\'enregistrement de l\'objet' });
+      });
+    }).catch(err => {
+      console.log("Erreur lors de la recherche de l'objet:", err);
+      res.status(404).json({ result: false, error: 'Objet non trouvé' });
+    });
+  }).catch(err => {
+    console.log("Erreur lors de la recherche de l'utilisateur:", err);
+    res.status(404).json({ result: false, error: 'Utilisateur non trouvé' });
+  });
+});
 
   module.exports = router;
