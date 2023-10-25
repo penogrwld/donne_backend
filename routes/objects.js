@@ -29,26 +29,31 @@ const { checkBody } = require('../modules/checkBody');
 // Ajouter un objet à donner
 router.post('/add',(req,res)=> {
     // Vérifier si tous les champs à remplir sont bien renseignés
-    if (!checkBody(req.body, ['image', 'title', 'description', 'localisation', 'condition', 'user'])) {
+    if (!checkBody(req.body, ['image', 'title', 'description', 'localisation', 'condition'])) {
         res.json({ result: false, error: 'Missing or empty fields' });
         return;
       }
-    const newObject = new Object({
-        image: req.body.image,
-        title: req.body.title,
-        description: req.body.description,
-        localisation: {
-            city: req.body.city,
-            postalCode: req.body.postalCode
-        },
-        condition: req.body.condition,
-        user: req.body.user,
-        isLiked: false,
-        caughtBy: null
-      })
-      newObject.save().then(newDoc => {
-          res.json({ result: true, newDonation: newDoc})
-      })
+
+      User.findOne({ token: req.body.token }).then(user => {
+        const newObject = new Object({
+            image: req.body.image,
+            title: req.body.title,
+            description: req.body.description,
+            condition: req.body.condition,
+            localisation: {
+                city: req.body.localisation.city,
+                postalCode: req.body.localisation.postalCode
+            },
+            user: user._id,
+            likedBy: null,
+            caughtBy: null
+          })
+          newObject.save().then(newDoc => {
+              res.json({ result: true, don: newDoc})
+          })
 })
+})
+
+
 
 module.exports = router;
