@@ -3,11 +3,7 @@ var router = express.Router();
 
 require('../models/connection');
 const User = require('../models/users');
-<<<<<<< HEAD
 const Object = require('../models/objects');
-=======
-const Object = require('../models/objects')
->>>>>>> 5d144f571a3a33e5c2b35a8e36b6e24dc53cebdb
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
@@ -104,36 +100,6 @@ router.post('/signin', (req, res) => {
   });
 })
 
-
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Ajouter un like
 router.put('/like/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
@@ -190,6 +156,6 @@ router.put('/like/:token', (req, res) => {
     res.status(404).json({ result: false, error: 'Utilisateur non trouvé' });
   });
 });
->>>>>>> 5d144f571a3a33e5c2b35a8e36b6e24dc53cebdb
+
 
   module.exports = router;
