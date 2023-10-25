@@ -79,16 +79,7 @@ router.get("/:token", (req, res) => {
     
     } );
 
-    // Recherchez les objets associés à cet utilisateur
-    /*  Object.find({ _id: req.body.object }).then(object => {
-        if (!object) {
-          res.json({ result: false, error: 'Objet non trouvé' });
-          return;
-        }
-        Object.populate({path:'likedBy', populate: {path: 'user'}})
-        .then(finalObj => console.log(finalObj))
-        res.json({ result: true, finalObj })
-      }) */
+
   
 });
 
