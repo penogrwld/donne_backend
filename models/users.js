@@ -7,7 +7,9 @@ const userSchema = mongoose.Schema({
   email: String,
   username: String,
   password: String,
-  //canDelete: Boolean,
+  dons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
+  catchs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
+  likedObjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
 });
 
 const User = mongoose.model('users', userSchema);

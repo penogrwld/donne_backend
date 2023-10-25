@@ -11,8 +11,8 @@ const objectSchema = mongoose.Schema({
     description: String,
     condition: String,
     localisation: localisationSchema,
-    user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
-    isLiked: Boolean,
+    user : { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     caughtBy : { type: mongoose.Schema.Types.ObjectId, ref: 'users' }
 })
 
