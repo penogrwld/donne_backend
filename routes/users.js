@@ -32,7 +32,7 @@ router.post("/signup", (req, res) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         username: req.body.username,
-        email: req.body.username,
+        email: req.body.email,
         password: hash,
         token: uid2(32),
         // canDelete: true,
@@ -69,7 +69,7 @@ router.post("/signin", (req, res) => {
 // Farid
 
 
-router.get("/:token", (req, res) => {
+router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (user === null) {
       res.json({ result: false, error: "User not found" });
@@ -80,10 +80,23 @@ router.get("/:token", (req, res) => {
     console.log(userId);
     Object.find({ user: userId })
     .populate({path:'likedBy'})
-    .then(populatedObjectList => console.log(populatedObjectList[0].likedBy[0].email))
-    
-    } );
-
+    .then(populatedObjectList => {
+      const extractedInfo = populatedObjectList.map(obj => { // permet de récupérer tous les éléments de la data
+        const likedUsers = !obj.likedBy ? obj.likedBy = [] : obj.likedBy.map((user) => {
+          return {
+            username: user.username,
+            avatar: user.avatar
+          };
+        });
+        return {
+          title: obj.title,
+          image: obj.image[0],    
+          likedBy: likedUsers
+        };
+      });
+      res.json(extractedInfo)
+    }) 
+    });
   });
 
 
