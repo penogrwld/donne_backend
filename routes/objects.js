@@ -45,7 +45,6 @@ router.post('/add',(req,res)=> {
                 postalCode: req.body.localisation.postalCode
             },
             user: user._id,
-            likedBy: null,
             caughtBy: null
           })
           newObject.save().then(newDoc => {
