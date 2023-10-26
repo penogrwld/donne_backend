@@ -54,4 +54,21 @@ router.post('/add',(req,res)=> {
 })
 })
 
+
+router.get('/', (req, res) => {
+    Object.find().then(data => {
+
+    for (let obj of data){
+    if (obj.likedBy.length === 5 && obj.likedBy.includes(obj.user)){
+        
+        res.json({ result : true, })
+
+         }};
+    });
+});
+
+    // data.likedBy.map
+    // .then(finalObj =>  {console.log(finalObj)
+
+
 module.exports = router;

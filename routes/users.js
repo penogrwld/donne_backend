@@ -1,22 +1,30 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-require('../models/connection');
-const User = require('../models/users');
-const Object = require('../models/objects')
-const { checkBody } = require('../modules/checkBody');
-const uid2 = require('uid2');
-const bcrypt = require('bcrypt');
+require("../models/connection");
+const User = require("../models/users");
+const Object = require("../models/objects");
+const { checkBody } = require("../modules/checkBody");
+const uid2 = require("uid2");
+const bcrypt = require("bcrypt");
 
 // Route pour l'inscription
-router.post('/signup', (req, res) => {
-  if (!checkBody(req.body, ['firstname', 'lastname', 'username', 'password', 'email'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+router.post("/signup", (req, res) => {
+  if (
+    !checkBody(req.body, [
+      "firstname",
+      "lastname",
+      "username",
+      "password",
+      "email",
+    ])
+  ) {
+    res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
 
   // Check if the user has not already been registered
-  User.findOne({ username: req.body.username }).then(data => {
+  User.findOne({ username: req.body.username }).then((data) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -30,57 +38,65 @@ router.post('/signup', (req, res) => {
         // canDelete: true,
       });
 
-      newUser.save().then(newDoc => {
+      newUser.save().then((newDoc) => {
         res.json({ result: true, token: newDoc.token });
       });
     } else {
       // User already exists in database
-      res.json({ result: false, error: 'User already exists' });
+      res.json({ result: false, error: "User already exists" });
     }
   });
 });
 
 // // Route pour la connexion
-router.post('/signin', (req, res) => {
-  if (!checkBody(req.body, ['username', 'password'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+router.post("/signin", (req, res) => {
+  if (!checkBody(req.body, ["username", "password"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
 
-  User.findOne({ username: req.body.username }).then(data => {
+  User.findOne({ username: req.body.username }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token, firstname: data.firstname, email: data.email, lastname: data.lastname});
     } else {
-      res.json({ result: false, error: 'User not found or wrong password' });
+      res.json({ result: false, error: "User not found or wrong password" });
     }
   });
 });
 
+// Route côté donneur qui sert à afficher les objets du donneur
 
+router.get("/:token/object", (req, res) => {
+  User.findOne({ token: req.params.token }).then((user) => {
+    if (user === null) {
+      res.json({ result: false, error: "User not found" });
+      return;
+    }
 
-// Farid
+    const userId = user.id; // Récupérez l'ID de l'utilisateur
+    
+    Object.find({ user: userId })
+    .populate({path:'likedBy'})
+    .then(populatedObjectList => {
+      const extractedInfo = populatedObjectList.map(obj => {
+        const likedUsers = !obj.likedBy ? obj.likedBy = [] : obj.likedBy.map((user) => {
+          return {
+            username: user.username,
+            avatar: user.avatar
+          };
+        });
+        return {
+          title: obj.title,
+          image: obj.image[0],    
+          likedBy: likedUsers
+        };
+      });
+      res.json(extractedInfo)
+    }) 
+    });
+  });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- // Route côté chineur/dénicheur
+ // Route côté chineur/dénicheur qui sert à afficher les objets likés par le chineur. 
  router.get('/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
     
@@ -99,7 +115,6 @@ router.post('/signin', (req, res) => {
     }
   });
 })
-
 
 // Ajouter un like
 router.put('/like/:token', (req, res) => {
