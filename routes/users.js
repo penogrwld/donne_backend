@@ -64,9 +64,7 @@ router.post("/signin", (req, res) => {
   });
 });
 
-
-
-// Farid
+// Route côté donneur qui sert à afficher les objets du donneur
 
 
 router.get("/:token/object", (req, res) => {
@@ -77,6 +75,7 @@ router.get("/:token/object", (req, res) => {
     }
 
     const userId = user.id; // Récupérez l'ID de l'utilisateur
+    console.log(userId);
     Object.find({ user: userId })
     .populate({path:'likedBy'})
     .then(populatedObjectList => {
@@ -98,7 +97,7 @@ router.get("/:token/object", (req, res) => {
     });
   });
 
- // Route côté chineur/dénicheur
+ // Route côté chineur/dénicheur qui sert à afficher les objets likés par le chineur. 
  router.get('/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
     
