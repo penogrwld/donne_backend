@@ -64,10 +64,7 @@ router.post("/signin", (req, res) => {
   });
 });
 
-
-
-// Farid
-
+// Route côté donneur qui sert à afficher les objets du donneur
 
 router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
@@ -77,17 +74,18 @@ router.get("/:token/object", (req, res) => {
     }
 
     const userId = user.id; // Récupérez l'ID de l'utilisateur
+    console.log(userId);
     Object.find({ user: userId })
     .populate({path:'likedBy'})
     .then(populatedObjectList => {
       const extractedInfo = populatedObjectList.map(obj => { // permet de récupérer tous les éléments de la data
-        const likedUsers = !obj.likedBy ? obj.likedBy = [] : obj.likedBy.map((user) => {
-          return {
+        const likedUsers =  obj.likedBy.map((user) => { // pour de récupérer les éléments nécessaire du tableau likedBy
+          return { 
             username: user.username,
             avatar: user.avatar
           };
         });
-        return {
+        return { // ici on créer un objet avec les éléments dont on a besoin
           title: obj.title,
           image: obj.image[0],    
           likedBy: likedUsers
@@ -98,7 +96,7 @@ router.get("/:token/object", (req, res) => {
     });
   });
 
- // Route côté chineur/dénicheur
+ // Route côté chineur/dénicheur qui sert à afficher les objets likés par le chineur. 
  router.get('/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
     
@@ -155,6 +153,47 @@ router.put('/like/:token', (req, res) => {
     })
   })
 })
+
+
+
+
+router.put('/dislike/:token', (req, res) => {
+  User.findOne({ token: req.params.token }).then(user => {
+
+    // Si il n'y a pas d'user on continue pas
+    if (!user) {
+      console.log('User not found');
+      res.json({ result: false, error: 'User not found' });
+      return;
+    }
+
+    // Si il n'y a pas d'objet on continue pas
+    Object.findOne({ _id: req.body.objectId }).then(object => {
+      if (!object) {
+        res.json({ result: false, error: 'Object not found' });
+        return;
+      }
+
+      // Supprime l'ID de l'utilisateur de la liste "likedBy" de l'objet.
+      object.likedBy = object.likedBy.filter(e => e.toString() !== user.id.toString());
+      // console.log(user);
+
+      // ça va sauvegarder l'objet mis à jour.
+      object.save().then(savedObject => {
+        // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
+        // On ajoute .toString() pour comparer les valeurs en string
+        user.likedObjects = user.likedObjects.filter(e=> e.toString() !== object.id.toString());
+        // console.log();
+
+        // ça va sauvegarder l'utilisateur mis à jour.
+        user.save().then(savedUser => {
+          res.json({ result: true, likedObjects: savedUser.likedObjects });
+        });
+      });
+    });
+  });
+});
+
 
 
 
