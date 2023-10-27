@@ -60,12 +60,10 @@ router.post('/add',(req,res)=> {
 
 router.get('/:token', (req, res) => {
     User.findOne({ token: req.params.token }).then(user => { // trouve tous l'user connecté
-       console.log(user) 
     Object.find().then(data => { // trouve toutes les données dans la BDD
-        console.log(data)
         // filtres des données dont likedBy est inf à 5, les objets qui ne sont pas sont pas de l'user connecté, et les objets qui inclus un like de l'user connecté
-        const filteredData = data.filter(obj => obj.likedBy.length < 5 && user._id !== obj.user && !obj.likedBy.includes(user._id)); 
-        console.log(filteredData); 
+        const filteredData = data.filter(obj => obj.likedBy.length < 5 && obj.user.toString() !== user._id.toString() && !obj.likedBy.includes(user._id)); 
+        console.log(user._id); 
 
         res.json({ result: filteredData });
     });
