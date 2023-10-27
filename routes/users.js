@@ -155,7 +155,7 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
-router.put('/unlike/:token', (req, res) => {
+router.put('/dislike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
     // Si il n'y a pas d'user on continue pas
