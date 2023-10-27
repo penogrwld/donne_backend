@@ -66,6 +66,7 @@ router.post("/signin", (req, res) => {
 
 // Route côté donneur qui sert à afficher les objets du donneur
 
+
 router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (user === null) {
@@ -142,10 +143,7 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
-
-
-
-router.put('/dislike/:token', (req, res) => {
+router.put('/unlike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
     // Si il n'y a pas d'user on continue pas
@@ -156,7 +154,7 @@ router.put('/dislike/:token', (req, res) => {
     }
 
     // Si il n'y a pas d'objet on continue pas
-    Object.findOne({ _id: req.body.objectId }).then(object => {
+    Object.findOne({ _id: req.body.object }).then(object => {
       if (!object) {
         res.json({ result: false, error: 'Object not found' });
         return;
@@ -175,7 +173,7 @@ router.put('/dislike/:token', (req, res) => {
 
         // ça va sauvegarder l'utilisateur mis à jour.
         user.save().then(savedUser => {
-          res.json({ result: true, likedObjects: savedUser.likedObjects });
+          res.json({ result: true, likedBy: savedObject.likedBy });
         });
       });
     });
