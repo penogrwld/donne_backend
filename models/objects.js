@@ -6,6 +6,7 @@ const localisationSchema = mongoose.Schema({
    });
 
 const objectSchema = mongoose.Schema({
+    uniqid: String,
     image: [String],
     title: String,
     description: String,
