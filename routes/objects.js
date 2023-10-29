@@ -36,6 +36,7 @@ router.post('/add',(req,res)=> {
 
       User.findOne({ token: req.body.token }).then(user => {
         const newObject = new Object({
+            uniqid: uniqid(),
             image: req.body.image,
             title: req.body.title,
             description: req.body.description,
