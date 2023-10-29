@@ -146,13 +146,6 @@ router.put('/like/:token', (req, res) => {
 router.put('/unlike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
-    // Si il n'y a pas d'user on continue pas
-    if (!user) {
-      console.log('User not found');
-      res.json({ result: false, error: 'User not found' });
-      return;
-    }
-
     // Si il n'y a pas d'objet on continue pas
     Object.findOne({ _id: req.body.object }).then(object => {
       if (!object) {
