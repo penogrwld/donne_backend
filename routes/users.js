@@ -123,24 +123,12 @@ router.get("/:token/object", (req, res) => {
 // Ajouter un like
 router.put('/like/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
-    if (!user) {
-      console.log("Utilisateur non trouvé");
-      res.json({ result: false, error: 'Utilisateur non trouvé' })
-      return
-    }
-
     if (user.likedObjects.length === 5) {
       res.json({ result: false, error: 'Vous avez utilisé tous vos likes' })
       return
     }
 
     Object.findOne({ _id: req.body.object }).then(object => {
-      if (!object) {
-        res.json({ result: false, error: 'Objet non trouvé' })
-        return;
-      }
-
-
       if (object.likedBy.length >= 5) {
         res.json({ result: false, error: 'Cet objet a déjà eu le nombre maximum de likes' })
         return;
@@ -158,7 +146,7 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
-router.put('/dislike/:token', (req, res) => {
+router.put('/unlike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
     // Si il n'y a pas d'user on continue pas
