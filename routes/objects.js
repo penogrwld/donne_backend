@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 require('../models/connection');
-const uniqid = require('uniqid');
+const uniqid = require('uniqid')
 
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
