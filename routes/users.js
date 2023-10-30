@@ -75,7 +75,6 @@ router.get("/:token/object", (req, res) => {
     }
 
     const userId = user.id; // Récupérez l'ID de l'utilisateur
-    console.log(userId);
     Object.find({ user: userId })
     .populate({path:'likedBy'})
     .then(populatedObjectList => {
@@ -92,7 +91,8 @@ router.get("/:token/object", (req, res) => {
           title: obj.title,
           uniqid: obj.uniqid,
           image: obj.image[0],    
-          likedBy: likedUsers
+          likedBy: likedUsers,
+          id: obj.id
         };
       });
       res.json(extractedInfo)
@@ -149,22 +149,12 @@ router.put('/like/:token', (req, res) => {
 router.put('/dislike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
-    // Si il n'y a pas d'user on continue pas
-    if (!user) {
-      console.log('User not found');
-      res.json({ result: false, error: 'User not found' });
-      return;
-    }
-
     // Si il n'y a pas d'objet on continue pas
-    Object.findOne({ uniqid: req.body.object }).then(object => {
+    Object.findOne({ _id: req.body.object }).then(object => {
       if (!object) {
         res.json({ result: false, error: 'Object not found' });
         return;
       }
-
-
-
 // la route doit recevoir le token du Donneur et pour modifier le document de l'item = le user à retirer du likedBy et l'item 
 
       // Supprime l'ID de l'utilisateur de la liste "likedBy" de l'objet.
@@ -175,12 +165,12 @@ router.put('/dislike/:token', (req, res) => {
       object.save().then(savedObject => {
         // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
         // On ajoute .toString() pour comparer les valeurs en string
-        user.likedObjects = user.likedObjects.filter(e=> e !== object.uniqid);
+        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object.id.toString());
         // console.log();
 
         // ça va sauvegarder l'utilisateur mis à jour.
         user.save().then(savedUser => {
-          res.json({ result: true, likedBy: savedObject.likedBy });
+          res.json({ result: true, likedBy: savedObject.likedBy, likedObjects: savedUser.likedObjects });
         });
       });
     });
