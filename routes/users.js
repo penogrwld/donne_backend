@@ -16,6 +16,7 @@ router.post("/signup", (req, res) => {
       "lastname",
       "username",
       "password",
+      "phone",
       "email",
     ])
   ) {
@@ -33,6 +34,7 @@ router.post("/signup", (req, res) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         username: req.body.username,
+        phone: req.body.phone,
         email: req.body.email,
         password: hash,
         token: uid2(32),
@@ -83,6 +85,7 @@ router.get("/:token/object", (req, res) => {
           return { 
             token: user.token,
             username: user.username,
+            phone: user.phone,
             avatar: user.avatar
           };
           // console.log(user);
@@ -146,7 +149,7 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
-router.put('/unlike/:token', (req, res) => {
+router.put('/dislike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
     // Si il n'y a pas d'objet on continue pas
