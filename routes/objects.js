@@ -9,6 +9,7 @@ const fs = require('fs');
 const User = require('../models/users');
 const Object = require('../models/objects')
 const { checkBody } = require('../modules/checkBody');
+const geolib = require('geolib');
 
 
       // Ajouter une photo 
@@ -61,28 +62,36 @@ router.post('/add',(req,res)=> {
 // YOAN 
 // route qui affiche les objets en BDD dans le carrousel
 
-router.get('/:token', (req, res) => {
-    User.findOne({ token: req.params.token }).then(user => { // trouve tous l'user connecté
-    Object.find().then(data => { // trouve toutes les données dans la BDD
-        // filtres des données dont likedBy est inf à 5, les objets qui ne sont pas sont pas de l'user connecté, et les objets qui inclus un like de l'user connecté
-        const filteredData = data.filter(obj => obj.likedBy.length < 5 && obj.user.toString() !== user._id.toString() && !obj.likedBy.includes(user._id)); 
-        console.log(user._id); 
+router.get('/:token/:latitude/:longitude', (req, res) => {
+    User.findOne({ token: req.params.token }).then(user => {
+            Object.find().then(data => {
+                const filteredData = data.filter(obj => 
+                    obj.likedBy &&
+                    obj.likedBy.length < 5 &&
+                    obj.user && obj.user.toString() !== user._id.toString() &&
+                    obj.localisation && obj.localisation.latitude && obj.localisation.longitude
+                    && !obj.likedBy.includes(user._id)
+                );                
+                // Récupérer les coordonnées de localisation de l'utilisateur depuis les params 
+                const userCoordinates = {
+                    latitude: req.params.latitude,
+                    longitude: req.params.longitude
+                };
+                
+                // Filtre supplémentaire pour la distance (10 km)
+                const maxDistance = 10000; // 10 km en mètres
+                const filteredDataWithDistance = filteredData.filter(obj => {
+                    const objCoordinates = {
+                        latitude: obj.localisation.latitude,
+                        longitude: obj.localisation.longitude
+                    };
+                    const distance = geolib.getDistance(userCoordinates, objCoordinates);
+                    return distance <= maxDistance;
+                });
 
-        res.json({ result: filteredData });
-    });
-})
-});
-
-router.get('/', (req, res) => {
-    Object.find().then(data => {
-
-    for (let obj of data){
-    if (obj.likedBy.length === 5 && obj.likedBy.includes(obj.user)){
-        
-        res.json({ result : true, })
-
-         }};
-    });
+                res.json({ result: filteredDataWithDistance });
+            });
+        });
 });
 
     // data.likedBy.map
