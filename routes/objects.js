@@ -13,7 +13,7 @@ const { checkBody } = require('../modules/checkBody');
 
       // Ajouter une photo 
       router.post('/upload', async (req, res) => {
-        const photoPath = `./tmp/${uniqid()}.jpg`;
+        const photoPath = `/tmp/${uniqid()}.jpg`;
         const resultMove = await req.files.photoFromFront.mv(photoPath);
         
         if (!resultMove) {
