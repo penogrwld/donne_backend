@@ -89,4 +89,29 @@ router.get('/', (req, res) => {
     // .then(finalObj =>  {console.log(finalObj)
 
 
+    // YOAN SUPPRIMER UN OBJECT DE SA COLLECTION
+    
+
+router.delete('/:objectId', (req, res) => {
+    const objectId = req.params.objectId;
+        
+    // Effectuez la logique de suppression ici
+    Object.findOne({ _id: objectId })
+        .then(obj => {
+            console.log(obj)
+            if (!obj) {
+                
+              // L'objet n'a pas été trouvé, renvoyez une réponse d'erreur
+              return res.status(404).json({ message: 'Objet non trouvé' });
+            }
+      
+            // supprimer l'objet
+            obj.deleteOne()
+              .then(() => {
+                // L'objet a été supprimé avec succès, renvoyez une réponse de réussite
+                res.json({ message: 'Objet supprimé avec succès' });
+              })
+          })
+      });            
+
 module.exports = router;
