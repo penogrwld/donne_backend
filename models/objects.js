@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const localisationSchema = mongoose.Schema({
     city: String,
     postalCode: String,
+    latitude: String,
+    longitude: String,
    });
 
 const objectSchema = mongoose.Schema({
+    uniqid: String,
     image: [String],
     title: String,
     description: String,

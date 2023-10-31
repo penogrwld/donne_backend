@@ -16,6 +16,7 @@ router.post("/signup", (req, res) => {
       "lastname",
       "username",
       "password",
+      "phone",
       "email",
     ])
   ) {
@@ -33,6 +34,7 @@ router.post("/signup", (req, res) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         username: req.body.username,
+        phone: req.body.phone,
         email: req.body.email,
         password: hash,
         token: uid2(32),
@@ -66,6 +68,7 @@ router.post("/signin", (req, res) => {
 
 // Route côté donneur qui sert à afficher les objets du donneur
 
+
 router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (user === null) {
@@ -74,21 +77,25 @@ router.get("/:token/object", (req, res) => {
     }
 
     const userId = user.id; // Récupérez l'ID de l'utilisateur
-    console.log(userId);
     Object.find({ user: userId })
     .populate({path:'likedBy'})
     .then(populatedObjectList => {
       const extractedInfo = populatedObjectList.map(obj => { // permet de récupérer tous les éléments de la data
         const likedUsers =  obj.likedBy.map((user) => { // pour de récupérer les éléments nécessaire du tableau likedBy
           return { 
+            token: user.token,
             username: user.username,
+            phone: user.phone,
             avatar: user.avatar
           };
+          // console.log(user);
         });
         return { // ici on créer un objet avec les éléments dont on a besoin
           title: obj.title,
+          uniqid: obj.uniqid,
           image: obj.image[0],    
-          likedBy: likedUsers
+          likedBy: likedUsers,
+          id: obj.id
         };
       });
       res.json(extractedInfo)
@@ -119,24 +126,12 @@ router.get("/:token/object", (req, res) => {
 // Ajouter un like
 router.put('/like/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
-    if (!user) {
-      console.log("Utilisateur non trouvé");
-      res.json({ result: false, error: 'Utilisateur non trouvé' })
-      return
-    }
-
     if (user.likedObjects.length === 5) {
       res.json({ result: false, error: 'Vous avez utilisé tous vos likes' })
       return
     }
 
     Object.findOne({ _id: req.body.object }).then(object => {
-      if (!object) {
-        res.json({ result: false, error: 'Objet non trouvé' })
-        return;
-      }
-
-
       if (object.likedBy.length >= 5) {
         res.json({ result: false, error: 'Cet objet a déjà eu le nombre maximum de likes' })
         return;
@@ -154,25 +149,16 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
-
-
-
 router.put('/dislike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
-    // Si il n'y a pas d'user on continue pas
-    if (!user) {
-      console.log('User not found');
-      res.json({ result: false, error: 'User not found' });
-      return;
-    }
-
     // Si il n'y a pas d'objet on continue pas
-    Object.findOne({ _id: req.body.objectId }).then(object => {
+    Object.findOne({ _id: req.body.object }).then(object => {
       if (!object) {
         res.json({ result: false, error: 'Object not found' });
         return;
       }
+// la route doit recevoir le token du Donneur et pour modifier le document de l'item = le user à retirer du likedBy et l'item 
 
       // Supprime l'ID de l'utilisateur de la liste "likedBy" de l'objet.
       object.likedBy = object.likedBy.filter(e => e.toString() !== user.id.toString());
@@ -182,17 +168,48 @@ router.put('/dislike/:token', (req, res) => {
       object.save().then(savedObject => {
         // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
         // On ajoute .toString() pour comparer les valeurs en string
-        user.likedObjects = user.likedObjects.filter(e=> e.toString() !== object.id.toString());
+        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object.id.toString());
         // console.log();
 
         // ça va sauvegarder l'utilisateur mis à jour.
         user.save().then(savedUser => {
-          res.json({ result: true, likedObjects: savedUser.likedObjects });
+          res.json({ result: true, likedBy: savedObject.likedBy, likedObjects: savedUser.likedObjects });
         });
       });
     });
   });
 });
+
+
+// router.put("/:token/object", (req, res) => {
+//   User.findOne({ token: req.params.token }).then((user) => {
+//     if (user === null) {
+//       res.json({ result: false, error: "User not found" });
+//       return;
+//     }
+
+//     const userId = user.id; // Récupérez l'ID de l'utilisateur
+//     console.log(userId);
+//     Object.find({ user: userId })
+//     .populate({path:'likedBy'})
+//     .then(populatedObjectList => {
+//       const extractedInfo = populatedObjectList.map(obj => { // permet de récupérer tous les éléments de la data
+//         const likedUsers =  obj.likedBy.map((user) => { // pour de récupérer les éléments nécessaire du tableau likedBy
+//           return { 
+//             username: user.username,
+//             avatar: user.avatar
+//           };
+//         });
+//         return { // ici on créer un objet avec les éléments dont on a besoin
+//           title: obj.title,
+//           image: obj.image[0],    
+//           likedBy: likedUsers
+//         };
+//       });
+//       res.json(extractedInfo)
+//     }) 
+//     });
+//   });
 
 
 

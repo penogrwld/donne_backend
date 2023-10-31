@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 require('../models/connection');
-const uniqid = require('uniqid');
+const uniqid = require('uniqid')
 
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
@@ -13,7 +13,7 @@ const { checkBody } = require('../modules/checkBody');
 
       // Ajouter une photo 
       router.post('/upload', async (req, res) => {
-        const photoPath = `./tmp/${uniqid()}.jpg`;
+        const photoPath = `/tmp/${uniqid()}.jpg`
         const resultMove = await req.files.photoFromFront.mv(photoPath);
         
         if (!resultMove) {
@@ -36,13 +36,16 @@ router.post('/add',(req,res)=> {
 
       User.findOne({ token: req.body.token }).then(user => {
         const newObject = new Object({
+            uniqid: uniqid(),
             image: req.body.image,
             title: req.body.title,
             description: req.body.description,
             condition: req.body.condition,
             localisation: {
                 city: req.body.localisation.city,
-                postalCode: req.body.localisation.postalCode
+                postalCode: req.body.localisation.postalCode,
+                latitude: req.body.localisation.latitude,
+                longitude: req.body.localisation.longitude
             },
             user: user._id,
             caughtBy: null
@@ -60,12 +63,10 @@ router.post('/add',(req,res)=> {
 
 router.get('/:token', (req, res) => {
     User.findOne({ token: req.params.token }).then(user => { // trouve tous l'user connecté
-       console.log(user) 
     Object.find().then(data => { // trouve toutes les données dans la BDD
-        console.log(data)
         // filtres des données dont likedBy est inf à 5, les objets qui ne sont pas sont pas de l'user connecté, et les objets qui inclus un like de l'user connecté
-        const filteredData = data.filter(obj => obj.likedBy.length < 5 && user._id !== obj.user && !obj.likedBy.includes(user._id)); 
-        console.log(filteredData); 
+        const filteredData = data.filter(obj => obj.likedBy.length < 5 && obj.user.toString() !== user._id.toString() && !obj.likedBy.includes(user._id)); 
+        console.log(user._id); 
 
         res.json({ result: filteredData });
     });
