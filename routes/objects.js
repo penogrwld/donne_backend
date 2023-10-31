@@ -13,7 +13,7 @@ const { checkBody } = require('../modules/checkBody');
 
       // Ajouter une photo 
       router.post('/upload', async (req, res) => {
-        const photoPath = `./tmp/${uniqid()}.jpg`;
+        const photoPath = `/tmp/${uniqid()}.jpg`
         const resultMove = await req.files.photoFromFront.mv(photoPath);
         
         if (!resultMove) {
@@ -43,7 +43,9 @@ router.post('/add',(req,res)=> {
             condition: req.body.condition,
             localisation: {
                 city: req.body.localisation.city,
-                postalCode: req.body.localisation.postalCode
+                postalCode: req.body.localisation.postalCode,
+                latitude: req.body.localisation.latitude,
+                longitude: req.body.localisation.longitude
             },
             user: user._id,
             caughtBy: null
