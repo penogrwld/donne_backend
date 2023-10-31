@@ -168,7 +168,7 @@ router.put('/dislike/:token', (req, res) => {
       object.save().then(savedObject => {
         // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
         // On ajoute .toString() pour comparer les valeurs en string
-        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object.id.toString());
+        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object._id.toString());
         // console.log();
 
         // ça va sauvegarder l'utilisateur mis à jour.
