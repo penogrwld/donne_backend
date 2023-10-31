@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema({
   username: String,
   password: String,
   dons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
-  catchs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
+  catchs: [String],
   likedObjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'objects' }],
 });
 

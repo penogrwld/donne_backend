@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 require('../models/connection');
-const uniqid = require('uniqid');
+const uniqid = require('uniqid')
 
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
@@ -43,7 +43,9 @@ router.post('/add',(req,res)=> {
             condition: req.body.condition,
             localisation: {
                 city: req.body.localisation.city,
-                postalCode: req.body.localisation.postalCode
+                postalCode: req.body.localisation.postalCode,
+                latitude: req.body.localisation.latitude,
+                longitude: req.body.localisation.longitude
             },
             user: user._id,
             caughtBy: null
