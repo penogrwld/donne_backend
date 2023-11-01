@@ -71,6 +71,7 @@ router.get('/:token/:latitude/:longitude', (req, res) => {
                     obj.user && obj.user.toString() !== user._id.toString() &&
                     obj.localisation && obj.localisation.latitude && obj.localisation.longitude
                     && !obj.likedBy.includes(user._id)
+                    && obj.caughtBy 
                 );                
                 // Récupérer les coordonnées de localisation de l'utilisateur depuis les params 
                 const userCoordinates = {
