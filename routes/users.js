@@ -90,13 +90,15 @@ router.get("/:token/object", (req, res) => {
           };
           // console.log(user);
         });
-        return { // ici on créer un objet avec les éléments dont on a besoin
-          title: obj.title,
-          uniqid: obj.uniqid,
-          image: obj.image[0],    
-          likedBy: likedUsers,
-          id: obj.id
-        };
+        if(!obj.caughtBy){
+          return { // ici on créer un objet avec les éléments dont on a besoin
+            title: obj.title,
+            uniqid: obj.uniqid,
+            image: obj.image[0],    
+            likedBy: likedUsers,
+            id: obj.id
+          };
+        }
       });
       res.json(extractedInfo)
     }) 
