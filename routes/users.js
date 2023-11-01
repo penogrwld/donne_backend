@@ -155,7 +155,7 @@ router.put('/dislike/:token', (req, res) => {
     // Si il n'y a pas d'objet on continue pas
     Object.findOne({ _id: req.body.object }).then(object => {
       if (!object) {
-        res.json({ result: false, error: 'Object not found' });
+        res.json({ result: false, error: 'Object not found' })
         return;
       }
 // la route doit recevoir le token du Donneur et pour modifier le document de l'item = le user à retirer du likedBy et l'item 
@@ -173,7 +173,7 @@ router.put('/dislike/:token', (req, res) => {
 
         // ça va sauvegarder l'utilisateur mis à jour.
         user.save().then(savedUser => {
-          res.json({ result: true, likedBy: savedObject.likedBy, likedObjects: savedUser.likedObjects });
+          res.json({ result: true, likedBy: savedObject.likedBy, likedObjects: savedUser.likedObjects })
         });
       });
     });

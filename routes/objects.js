@@ -66,17 +66,17 @@ router.get('/:token/:latitude/:longitude', (req, res) => {
     User.findOne({ token: req.params.token }).then(user => {
             Object.find().then(data => {
                 const filteredData = data.filter(obj => 
-                    obj.likedBy &&
-                    obj.likedBy.length < 5 &&
-                    obj.user && obj.user.toString() !== user._id.toString() &&
-                    obj.localisation && obj.localisation.latitude && obj.localisation.longitude
+                    obj.likedBy.length < 5 
+                    && obj.user.toString() !== user._id.toString() 
+                    && obj.localisation && obj.localisation.latitude && obj.localisation.longitude
                     && !obj.likedBy.includes(user._id)
+                    && !obj.caughtBy 
                 );                
                 // Récupérer les coordonnées de localisation de l'utilisateur depuis les params 
                 const userCoordinates = {
                     latitude: req.params.latitude,
                     longitude: req.params.longitude
-                };
+                }
                 
                 // Filtre supplémentaire pour la distance (10 km)
                 const maxDistance = 10000; // 10 km en mètres
@@ -84,12 +84,12 @@ router.get('/:token/:latitude/:longitude', (req, res) => {
                     const objCoordinates = {
                         latitude: obj.localisation.latitude,
                         longitude: obj.localisation.longitude
-                    };
-                    const distance = geolib.getDistance(userCoordinates, objCoordinates);
-                    return distance <= maxDistance;
-                });
+                    }
+                    const distance = geolib.getDistance(userCoordinates, objCoordinates) // retourne la distance entre les 2 coordonnées en mètre
+                    return distance <= maxDistance 
+                })
 
-                res.json({ result: filteredDataWithDistance });
+                res.json({ result: filteredDataWithDistance })
             });
         });
 });
