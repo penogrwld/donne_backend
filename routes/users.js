@@ -149,6 +149,9 @@ router.put('/like/:token', (req, res) => {
   })
 })
 
+
+
+
 router.put('/dislike/:token', (req, res) => {
   User.findOne({ token: req.params.token }).then(user => {
 
@@ -158,7 +161,7 @@ router.put('/dislike/:token', (req, res) => {
         res.json({ result: false, error: 'Object not found' })
         return;
       }
-// la route doit recevoir le token du Donneur et pour modifier le document de l'item = le user à retirer du likedBy et l'item 
+    // la route doit recevoir le token du Donneur et pour modifier le document de l'item = le user à retirer du likedBy et l'item 
 
       // Supprime l'ID de l'utilisateur de la liste "likedBy" de l'objet.
       object.likedBy = object.likedBy.filter(e => e.toString() !== user.id.toString());
@@ -168,7 +171,7 @@ router.put('/dislike/:token', (req, res) => {
       object.save().then(savedObject => {
         // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
         // On ajoute .toString() pour comparer les valeurs en string
-        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object.id.toString());
+        user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object._id.toString());
         // console.log();
 
         // ça va sauvegarder l'utilisateur mis à jour.
@@ -179,6 +182,140 @@ router.put('/dislike/:token', (req, res) => {
     });
   });
 });
+
+
+
+// Route OUI (à enlever en cas de crash)
+
+router.put('/catch/:token', async (req, res) => {
+  try {
+    // Trouver l'utilisateur par le token
+    const user = await User.findOne({ token: req.params.token });
+
+    if (!user) {
+      return res.json({ result: false, error: 'User not found' });
+    }
+
+    // Trouver l'objet par l'ID
+    const object = await Object.findById(req.body.object);
+
+    if (!object) {
+      return res.json({ result: false, error: 'Object not found' });
+    }
+
+    // Supprimer l'objet de la liste "likedObjects" de tous les utilisateurs qui l'ont aimé
+    const usersToUpdate = await User.find({ _id: { $in: object.likedBy } });
+
+    const updatePromises = usersToUpdate.map(async (u) => {
+      u.likedObjects = u.likedObjects.filter(likedObjectId => likedObjectId.toString() !== object._id.toString());
+      await u.save();
+    });
+
+    await Promise.all(updatePromises);
+
+    // Vider la liste "likedBy" de l'objet
+    object.likedBy = [];
+
+    // Mettre à jour le champ "caughtBy" de l'objet
+    object.caughtBy = user._id;
+
+    user.catchs.push(object.image[0])
+    // console.log(user);
+
+    // Enregistrer l'objet mis à jour
+    await object.save();
+
+    // Enregistrer l'user mis à jour
+    await user.save();
+
+
+    res.json({
+      result: true,
+      likedBy: object.likedBy,
+      likedObjects: user.likedObjects,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ result: false, error: 'Error occurred' });
+  }
+});
+
+
+// -------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// router.put('/catch/:token', (req, res) => {
+//   User.findOne({ token: req.params.token }).then(user => {
+
+//     // Si il n'y a pas d'objet on continue pas
+//     Object.findOne({ _id: req.body.object }).then(object => {
+//       if (!object) {
+//         res.json({ result: false, error: 'Object not found' });
+//         return;
+//       }
+
+//       // Supprime tous les utilisateurs de la liste "likedBy" de l'objet.
+//       object.likedBy = []
+//       // console.log(user);
+
+//       object.caughtBy = user.id
+
+//       // ça va sauvegarder l'objet mis à jour.
+//       object.save().then(savedObject => {
+//         // Supprime l'ID de l'objet de la liste "likedObjects" de l'utilisateur.
+//         // On ajoute .toString() pour comparer les valeurs en string
+//         user.likedObjects = user.likedObjects.filter(e=> e.toString()!== object._id.toString());
+//         // console.log();
+
+//         // ça va sauvegarder l'utilisateur mis à jour.
+//         user.save().then(savedUser => {
+//           res.json({ result: true, likedBy: savedObject.likedBy, likedObjects: savedUser.likedObjects });
+//         });
+//       });
+//     });
+//   });
+// })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // router.put("/:token/object", (req, res) => {
@@ -244,6 +381,7 @@ router.put('/remove/:token', (req,res)=> {
     user.save()
   })
 })
+
 
 
 module.exports = router
