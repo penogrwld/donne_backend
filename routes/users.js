@@ -66,9 +66,8 @@ router.post("/signin", (req, res) => {
   });
 });
 
+
 // Route côté donneur qui sert à afficher les objets du donneur
-
-
 router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (user === null) {
@@ -76,34 +75,34 @@ router.get("/:token/object", (req, res) => {
       return;
     }
 
-    const userId = user.id; // Récupérez l'ID de l'utilisateur
+    const userId = user.id; // Récupérer l'ID de l'utilisateur
     Object.find({ user: userId })
     .populate({path:'likedBy'})
     .then(populatedObjectList => {
-      const extractedInfo = populatedObjectList.map(obj => { // permet de récupérer tous les éléments de la data
-        const likedUsers =  obj.likedBy.map((user) => { // pour de récupérer les éléments nécessaire du tableau likedBy
-          return { 
-            token: user.token,
-            username: user.username,
-            phone: user.phone,
-            avatar: user.avatar
-          };
-          // console.log(user);
-        });
-        if(!obj.caughtBy){
-          return { // ici on créer un objet avec les éléments dont on a besoin
+      const extractedInfo = populatedObjectList.filter(obj => !obj.caughtBy).map(obj => { // Filtrer les objets sans caughtBy
+          const likedUsers =  obj.likedBy.map((user) => {
+            return { 
+              token: user.token,
+              username: user.username,
+              phone: user.phone,
+              avatar: user.avatar
+            };
+          });
+
+          return {
             title: obj.title,
             uniqid: obj.uniqid,
             image: obj.image[0],    
             likedBy: likedUsers,
             id: obj.id
           };
-        }
-      });
-      res.json(extractedInfo)
+        });
+
+      res.json(extractedInfo);
     }) 
-    });
   });
+});
+
 
  // Route côté chineur/dénicheur qui sert à afficher les objets likés par le chineur. 
  router.get('/:token', (req, res) => {
