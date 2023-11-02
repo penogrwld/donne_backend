@@ -71,7 +71,7 @@ router.post("/signin", (req, res) => {
 router.get("/:token/object", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     if (user === null) {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "User not found" })
       return;
     }
 
