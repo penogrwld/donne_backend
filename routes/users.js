@@ -245,6 +245,17 @@ router.put('/remove/:token', (req,res)=> {
   })
 })
 
+router.delete('/delete/:token', (req,res)=>{
+  User.deleteOne({token:req.params.token})
+  .then(response=>response.json())
+  .then(data=> 
+  res.json({result:true}))
+}
+
+
+
+)
+
 
 module.exports = router
 
