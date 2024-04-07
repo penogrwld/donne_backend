@@ -57,6 +57,7 @@ router.post("/signin", (req, res) => {
     return;
   }
 
+  //Vérifie que l'utilisateur n'existe pas déjà et s'authentifie
   User.findOne({ username: req.body.username }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token, avatar: data.avatar, firstname: data.firstname, email: data.email, lastname: data.lastname});
@@ -65,6 +66,15 @@ router.post("/signin", (req, res) => {
     }
   });
 });
+
+
+
+ /*Permet d’afficher les objets qu’un utilisateur à mis en ligne, uniquement si l’objet n’a pas encore été donné, et d’afficher les données des utilisateur qui ont aimés ses objets.
+- Récupère l’ID du donneur.
+- Récupère tous les éléments de la base de données.
+- Créer un objet avec les éléments nécessaire pour l’affichage de l’objet aimé par
+l’utilisateur.
+- Est appelée au moment où un utilisateur aime un objet et quand on arrive sur la page .*/
 
 
 // Route côté donneur qui sert à afficher les objets du donneur
